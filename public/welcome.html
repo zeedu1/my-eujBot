@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JaiBot Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body class="bg-[#161535] text-white flex flex-col h-screen">
+
+    <!-- Chat Container -->
+    <div class="flex flex-col max-w-2xl w-full mx-auto h-full p-4 pb-24">
+        <h2 class="text-center text-2xl font-bold mb-4" id="welcomeMessage">Welcome!</h2>
+
+        <!-- Chatbox -->
+        <div id="chatbox" class="flex flex-col space-y-3 overflow-y-auto flex-grow p-4 bg-gray-800 rounded-lg">
+            <!-- Messages will be appended here -->
+        </div>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="fixed bottom-0 left-0 w-full flex justify-center p-4 bg-[#161535]">
+        <div class="flex items-center w-full max-w-2xl border border-gray-500 rounded-full px-4 py-2">
+            <textarea id="userInput" placeholder="Message JaiBot..." 
+                class="flex-grow text-white resize-none outline-none px-2 py-2 max-h-32 bg-transparent placeholder-gray-400"></textarea>
+            <button onclick="sendMessage()" 
+                class="ml-3 p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition">
+                ➤
+            </button>
+        </div>
+    </div>
+    
+
+    <script>
+        async function sendMessage() {
+            const userInput = document.getElementById("userInput");
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            const chatbox = document.getElementById("chatbox");
+
+            // Append user message
+            chatbox.innerHTML += `
+                <div class="flex justify-end">
+                    <div class="bg-blue-500 text-white p-3 rounded-lg max-w-xs">${message}</div>
+                </div>
+            `;
+
+            userInput.value = ""; 
+            userInput.style.height = "auto";
+
+            // Show typing animation
+            const typingIndicator = document.createElement("div");
+            typingIndicator.classList.add("flex", "items-center", "space-x-1", "text-gray-400", "ml-2");
+            typingIndicator.innerHTML = `
+                <span class="dot w-2 h-2 bg-white rounded-full animate-bounce"></span>
+                <span class="dot w-2 h-2 bg-white rounded-full animate-bounce delay-150"></span>
+                <span class="dot w-2 h-2 bg-white rounded-full animate-bounce delay-300"></span>
+            `;
+            chatbox.appendChild(typingIndicator);
+            chatbox.scrollTop = chatbox.scrollHeight;
+
+            // Predefined responses
+            let botReply = null;
+
+            if (/^(who\s*are\s*you|what\s*is\s*your\s*name\??)$/i.test(message) || /ano\s*pangalan\s*mo\??/i.test(message)) {
+                botReply = "I am EuJaiBot, your AI chatbot!";
+            } else if (/^(who\s*created\s*you|who\s*is\s*your\s*creator\??)$/i.test(message) || /sino\s*gumawa\s*sayo\??/i.test(message)) {
+                botReply = "I was created by Euree John Fernandez!";
+            }
+
+            if (botReply) {
+                chatbox.removeChild(typingIndicator);
+                chatbox.innerHTML += `
+                    <div class="flex justify-start">
+                        <div class="bg-gray-600 text-white p-3 rounded-lg max-w-xs">${botReply}</div>
+                    </div>
+                `;
+            } else {
+                // If no predefined response, fetch from the server
+                try {
+                    const response = await fetch("http://localhost:3000/chat", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ message }),
+                    });
+
+                    const data = await response.json();
+                    chatbox.removeChild(typingIndicator);
+
+                    // Append bot response
+                    chatbox.innerHTML += `
+                        <div class="flex justify-start">
+                            <div class="bg-gray-600 text-white p-3 rounded-lg max-w-xs">${data.reply}</div>
+                        </div>
+                    `;
+                } catch (error) {
+                    chatbox.removeChild(typingIndicator);
+                    chatbox.innerHTML += `
+                        <div class="flex justify-start">
+                            <div class="bg-red-500 text-white p-3 rounded-lg max-w-xs">
+                                <b>Error:</b> Unable to get a response.
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        // Auto-expand textarea like ChatGPT
+        document.getElementById("userInput").addEventListener("input", function () {
+            this.style.height = "auto";
+            this.style.height = (this.scrollHeight) + "px";
+        });
+
+        function displayUserName() {
+            const userName = localStorage.getItem("userName");
+            if (userName) {
+                document.getElementById("welcomeMessage").innerText = `Welcome, ${userName}!`;
+            }
+        }
+
+        // Call function on page load
+        displayUserName();
+    </script>
+
+</body>
+</html>

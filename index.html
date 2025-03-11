@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - EuJaiBot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body class="bg-[#161535] text-white flex items-center justify-center min-h-screen">
+    <div class="container mx-auto px-4 flex flex-col md:flex-row items-center justify-center md:justify-between">
+        <!-- Left Side -->
+        <div class="w-full md:w-1/2 text-center md:text-left flex flex-col justify-center h-full px-4 md:px-10 md:ml-40">
+            <h1 class="text-4xl md:text-5xl font-bold">Welcome to EuJaiBot</h1>
+            <p class="mt-4 text-base md:text-lg">Your AI-powered chatbot companion to assist you with smart conversations.</p>
+            <button id="startBtn" class="mt-6 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold text-lg rounded-md transition duration-300 w-auto mx-auto md:mx-0">
+                Start
+            </button>
+        </div>
+
+        <!-- Right Side -->
+        <div class="w-full md:w-1/2 flex justify-center items-center relative mt-6 md:mt-0">
+            <div id="imageContainer" class="relative flex justify-center">
+                <img id="botImage" src="/images/bgai.jpg" alt="EuJaiBot" class="w-64 md:w-80 h-64 md:h-80 object-cover">
+            </div>
+            
+            <!-- Form (Initially Hidden) -->
+            <div id="formContainer" class="hidden absolute flex justify-center w-64 md:w-80">
+                <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full h-64 md:h-80 flex flex-col justify-center items-center text-center">
+                    <h2 class="text-xl md:text-2xl font-bold mb-4">Enter Your Name</h2>
+                    <input id="userName" type="text" placeholder="Your Name" class="w-full p-2 mb-4 rounded-md text-black">
+                    <button id="submitBtn" class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-bold rounded-md transition duration-300">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#startBtn').click(function() {
+                $('#botImage').fadeOut(500, function() {
+                    $('#imageContainer').hide();
+                    $('#formContainer').css("position", "relative").fadeIn(500);
+                });
+            });
+
+            $('#submitBtn').click(function() {
+                var userName = $('#userName').val().trim();
+                if (userName) {
+                    localStorage.setItem("userName", userName);  // Store username
+                    window.location.href = "welcome.html";  // Redirect to welcome.html
+                } else {
+                    alert("Please enter your name!");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
